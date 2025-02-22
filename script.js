@@ -5,7 +5,6 @@ const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/$
 let categories = {};
 let playlist = [];
 let currentTrackIndex = 0; // Controla a música atual tocando
-let isPlaying = false; // Para verificar se a música está tocando
 
 // Função para carregar as músicas
 async function fetchMusic() {
@@ -84,7 +83,6 @@ function playTrack(title, url) {
     audioPlayer.play();
 
     document.title = title; // Alterar o título da página para o título da música
-    isPlaying = true;
 
     // Se a música for da playlist, retorne o índice correto
     const trackIndex = playlist.findIndex(track => track.url === url);
@@ -127,4 +125,12 @@ function updatePlaylistDisplay() {
         const trackElement = document.createElement("div");
         trackElement.className = "playlist-track";
         trackElement.innerHTML = `
-     
+            <span>${track.title}</span>
+            <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
+        `;
+        playlistContainer.appendChild(trackElement);
+    });
+}
+
+// Carrega as músicas ao iniciar a página
+fetchMusic();
