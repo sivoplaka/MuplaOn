@@ -63,6 +63,16 @@ nav a {
 .track-list {
     display: none;
     margin-left: 20px;
+    max-height: 200px; /* Garantir um limite de altura */
+    overflow-y: auto; /* Habilitar scroll */
+}
+
+/* Ajuste para a área da lista de músicas */
+.music-list {
+    margin-top: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 100px;
 }
 
 /* Estilização das faixas de áudio */
@@ -99,14 +109,6 @@ nav a {
     margin: 0;
     padding-bottom: 10px;
     text-align: center;
-}
-
-/* Ajuste para garantir que o último item da playlist seja visível */
-.music-list {
-    margin-top: 20px;
-    flex-grow: 1;
-    overflow-y: auto;
-    padding-bottom: 100px;
 }
 
 /* Botão de adicionar à playlist */
