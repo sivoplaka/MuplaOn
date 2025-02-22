@@ -62,8 +62,13 @@ nav a {
 
 .track-list {
     max-height: 300px; /* Ajuste a altura máxima desejada */
-    overflow-y: scroll; /* Inicialmente sem rolagem */
+    overflow-y: hidden; /* Inicialmente sem rolagem */
     padding-right: 10px;
+}
+
+/* Classe que garante que a rolagem só aparece quando o conteúdo ultrapassar a altura visível */
+.track-list.scrollable {
+    overflow-y: auto; /* Ativar rolagem quando necessário */
 }
 
 .music-list {
@@ -73,7 +78,6 @@ nav a {
     padding-bottom: 100px;
     max-height: auto; /* Garantir uma altura fixa para rolar */
 }
-
 
 /* Estilização das faixas de áudio */
 .track {
