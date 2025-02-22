@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A minha biblioteca musical</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .category {
+            margin-bottom: 20px;
+        }
+        .category h2 {
+            text-align: left;
+            border-bottom: 2px solid #fff;
+            padding-bottom: 5px;
+        }
+        .track {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #181818;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        audio {
+            width: 100%;
+        }
+        .playlist {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #282828;
+            border-radius: 5px;
+        }
+        button {
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Minha Biblioteca de Músicas</h1>
+    <label for="genre-filter">Filtrar por Estilo:</label>
+    <select id="genre-filter" onchange="filterByGenre()">
+        <option value="all">Todos</option>
+    </select>
+    <div class="container" id="music-list"></div>
+    
+    <div class="playlist">
+        <h2>Minha Playlist</h2>
+        <div id="playlist-list"></div>
+        <button onclick="clearPlaylist()">Limpar Playlist</button>
+    </div>
+    
+    <script>
+        const repoOwner = "sivoplaka";
+        const repoName = "MuplaOn";
+        const musicFolder = "music";
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
+        const playlist = [];
+
+        async function fetchMusic() {
+            try {
+                const response = await fetch(apiUrl);
+                const files = await response.json();
+                
+                const musicList = document.getElementById("music-list");
+                musicList.innerHTML = "";
+                
+                const genreFilter = document.getElementById("genre-filter");
+                const genres = new Set();
+                
+                const categories = {};
+                
+                files.forEach(file => {
+                    if (file.name.endsWith(".mp3")) {
+                        const [artist, album, genre, title] = file.name.replace('.mp3', '').split(' - ');
+                        genres.add(genre);
+                        
+                        if (!categories[genre]) {
+                            categories[genre] = {};
+                        }
+                        if (!categories[genre][artist]) {
+                            categories[genre][artist] = {};
+                        }
+                        if (!categories[genre][artist][album]) {
+                            categories[genre][artist][album] = [];
+                        }
+                        categories[genre][artist][album].push({ title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                    }
+                });
+                
+                genres.forEach(genre => {
+                    const option = document.createElement("option");
+                    option.value = genre;
+                    option.textContent = genre;
+                    genreFilter.appendChild(option);
+                });
+
+                displayMusic(categories);
+            } catch (error) {
+                console.error("Erro ao procurar as músicas:", error);
+            }
+        }
+
+        function displayMusic(categories, selectedGenre = "all") {
+            const musicList = document.getElementById("music-list");
+            musicList.innerHTML = "";
+
+            for (const genre in categories) {
+                if (selectedGenre !== "all" && genre !== selectedGenre) continue;
+                
+                const genreSection = document.createElement("div");
+                genreSection.className = "category";
+                genreSection.innerHTML = `<h2>${genre}</h2>`;
+                
+                for (const artist in categories[genre]) {
+                    const artistSection = document.createElement("div");
+                    artistSection.innerHTML = `<h3>${artist}</h3>`;
+                    
+                    for (const album in categories[genre][artist]) {
+                        const albumSection = document.createElement("div");
+                        albumSection.innerHTML = `<h4>${album}</h4>`;
+                        
+                        categories[genre][artist][album].forEach(track => {
+                            const trackElement = document.createElement("div");
+                            trackElement.className = "track";
+                            trackElement.innerHTML = `
+                                <span>${track.title}</span>
+                                <audio controls>
+                                    <source src="${track.url}" type="audio/mpeg">
+                                </audio>
+                                <button onclick="addToPlaylist('${track.title}', '${track.url}')">➕</button>
+                            `;
+                            albumSection.appendChild(trackElement);
+                        });
+                        artistSection.appendChild(albumSection);
+                    }
+                    genreSection.appendChild(artistSection);
+                }
+                musicList.appendChild(genreSection);
+            }
+        }
+
+        function filterByGenre() {
+            const selectedGenre = document.getElementById("genre-filter").value;
+            fetchMusic().then(() => displayMusic(categories, selectedGenre));
+        }
+
+        function addToPlaylist(title, url) {
+            playlist.push({ title, url });
+            updatePlaylist();
+        }
+
+        function updatePlaylist() {
+            const playlistList = document.getElementById("playlist-list");
+            playlistList.innerHTML = "";
+            playlist.forEach(track => {
+                const trackElement = document.createElement("div");
+                trackElement.className = "track";
+                trackElement.innerHTML = `
+                    <span>${track.title}</span>
+                    <audio controls>
+                        <source src="${track.url}" type="audio/mpeg">
+                    </audio>
+                `;
+                playlistList.appendChild(trackElement);
+            });
+        }
+
+        function clearPlaylist() {
+            playlist.length = 0;
+            updatePlaylist();
+        }
+
+        fetchMusic();
+    </script>
+</body>
+</html>
