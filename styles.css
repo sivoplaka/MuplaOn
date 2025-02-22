@@ -51,9 +51,11 @@ nav a {
     margin-bottom: 10px;
 }
 
+/* Ajustando tamanho da fonte para os artistas */
 .artist-title {
-    font-size: 24px;
-    padding: 10px;
+    font-size: 26px; /* Aumentado para melhor visibilidade */
+    font-weight: bold;
+    padding: 12px;
     background: #202020;
     border-radius: 5px;
 }
