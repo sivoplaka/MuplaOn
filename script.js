@@ -2,49 +2,47 @@ const repoOwner = "sivoplaka";
 const repoName = "MuplaOn";
 const musicFolder = "music";
 const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
-
-let categories = {};
+let artists = {};
 let playlist = [];
 let currentTrackIndex = 0;
-let isPlaylistMode = false;
 
-// Carregar músicas
+// Função para carregar músicas
 async function fetchMusic() {
     try {
         const response = await fetch(apiUrl);
         const files = await response.json();
         
-        categories = {};
+        artists = {};
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
                 const [artist, album, ...titleParts] = file.name.replace('.mp3', '').split(' - ');
                 const title = titleParts.join(' - ');
 
-                if (!categories[artist]) {
-                    categories[artist] = [];
+                if (!artists[artist]) {
+                    artists[artist] = [];
                 }
-                categories[artist].push({ album, title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                artists[artist].push({ title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
             }
         });
 
-        displayMusic(categories);
+        displayMusic(artists);
     } catch (error) {
         console.error("Erro ao buscar músicas:", error);
     }
 }
 
-// Exibir músicas agrupadas por artista
-function displayMusic(categories) {
+// Exibir artistas e músicas
+function displayMusic(artists) {
     const musicList = document.getElementById("music-list");
     musicList.innerHTML = "";
 
-    for (const artist in categories) {
+    for (const artist in artists) {
         const artistSection = document.createElement("div");
-        artistSection.className = "album";
+        artistSection.className = "artist";
 
         const artistTitle = document.createElement("div");
-        artistTitle.className = "album-title";
+        artistTitle.className = "artist-title";
         artistTitle.textContent = artist;
         artistTitle.onclick = () => toggleArtist(artist);
 
@@ -54,7 +52,7 @@ function displayMusic(categories) {
         trackList.className = "track-list";
         trackList.id = `${artist}-tracks`;
 
-        categories[artist].forEach(track => {
+        artists[artist].forEach(track => {
             const trackElement = document.createElement("div");
             trackElement.className = "track";
             trackElement.innerHTML = `
@@ -69,13 +67,13 @@ function displayMusic(categories) {
     }
 }
 
-// Alternar visibilidade do artista
+// Alternar exibição do artista
 function toggleArtist(artist) {
     const trackList = document.getElementById(`${artist}-tracks`);
     trackList.style.display = trackList.style.display === "none" ? "block" : "none";
 }
 
-// Tocar música
+// Tocar música e definir próximo da playlist
 function playTrack(title, url, artist) {
     const audioPlayer = document.getElementById("audio-player");
     const audioSource = document.getElementById("audio-source");
@@ -85,33 +83,23 @@ function playTrack(title, url, artist) {
     audioPlayer.play();
 
     document.title = title;
-    isPlaylistMode = false;
 
-    // Definir ordem de reprodução correta dentro do artista
-    const artistTracks = categories[artist].map(track => track.url);
-    currentTrackIndex = artistTracks.indexOf(url);
+    // Atualizar o índice da música atual na playlist
+    currentTrackIndex = playlist.findIndex(track => track.url === url);
 
-    audioPlayer.onended = () => {
-        playNextTrack(artist);
-    };
+    audioPlayer.onended = playNextInPlaylist;
 }
 
-// Tocar próxima música dentro do mesmo artista
-function playNextTrack(artist) {
-    const artistTracks = categories[artist].map(track => track.url);
+// Tocar próxima música na playlist
+function playNextInPlaylist() {
+    if (playlist.length === 0) return;
 
-    if (currentTrackIndex < artistTracks.length - 1) {
-        currentTrackIndex++;
-        const nextTrack = categories[artist][currentTrackIndex];
-        playTrack(nextTrack.title, nextTrack.url, artist);
-    } else {
-        currentTrackIndex = 0; // Reinicia o loop do artista
-        const nextTrack = categories[artist][currentTrackIndex];
-        playTrack(nextTrack.title, nextTrack.url, artist);
-    }
+    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+    const nextTrack = playlist[currentTrackIndex];
+    playTrack(nextTrack.title, nextTrack.url, nextTrack.artist);
 }
 
-// Adicionar música à playlist sem tocar imediatamente
+// Adicionar música à playlist
 function addToPlaylist(title, url, artist) {
     if (!playlist.some(track => track.url === url)) {
         playlist.push({ title, url, artist });
@@ -119,7 +107,7 @@ function addToPlaylist(title, url, artist) {
     }
 }
 
-// Atualizar exibição da playlist com scroll
+// Atualizar exibição da playlist
 function updatePlaylistDisplay() {
     const playlistContainer = document.getElementById("playlist");
     playlistContainer.innerHTML = "";
@@ -128,46 +116,20 @@ function updatePlaylistDisplay() {
         const trackElement = document.createElement("div");
         trackElement.className = "playlist-track";
         trackElement.innerHTML = `
-            <span onclick="playPlaylistTrack(${index})">${track.title}</span>
+            <span onclick="playTrack('${track.title}', '${track.url}', '${track.artist}')">${track.title}</span>
             <button onclick="removeFromPlaylist(${index})">❌</button>
         `;
         playlistContainer.appendChild(trackElement);
     });
 
-    document.getElementById("playlist-container").style.maxHeight = "200px";
-    document.getElementById("playlist-container").style.overflowY = "auto";
+    // Garantir que o último item da playlist seja visível
+    playlistContainer.scrollTop = playlistContainer.scrollHeight;
 }
 
 // Remover música da playlist
 function removeFromPlaylist(index) {
     playlist.splice(index, 1);
     updatePlaylistDisplay();
-}
-
-// Tocar música da playlist
-function playPlaylistTrack(index) {
-    currentTrackIndex = index;
-    isPlaylistMode = true;
-    playFromPlaylist();
-}
-
-// Tocar a próxima música na playlist
-function playFromPlaylist() {
-    if (playlist.length === 0) return;
-
-    const { title, url, artist } = playlist[currentTrackIndex];
-    const audioPlayer = document.getElementById("audio-player");
-    const audioSource = document.getElementById("audio-source");
-
-    audioSource.src = url;
-    audioPlayer.load();
-    audioPlayer.play();
-    document.title = title;
-
-    audioPlayer.onended = () => {
-        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-        playFromPlaylist();
-    };
 }
 
 // Carregar músicas ao iniciar
