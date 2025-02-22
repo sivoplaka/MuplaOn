@@ -62,7 +62,7 @@ nav a {
 
 .track-list {
     max-height: 300px; /* Ajuste a altura máxima desejada */
-    overflow-y: hidden; /* Inicialmente sem rolagem */
+    overflow-y: scroll; /* Inicialmente sem rolagem */
     padding-right: 10px;
 }
 
@@ -71,7 +71,7 @@ nav a {
     flex-grow: 1;
     overflow-y: scroll; /* Garantir o scroll vertical */
     padding-bottom: 100px;
-    max-height: 400px; /* Garantir uma altura fixa para rolar */
+    max-height: auto; /* Garantir uma altura fixa para rolar */
 }
 
 
