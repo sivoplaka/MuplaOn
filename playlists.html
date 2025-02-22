@@ -1,36 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minhas Playlists</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Your Playlist</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #181818; color: #fff; }
+        .header { text-align: center; padding: 20px; background: #121212; }
+        .playlist { margin-top: 40px; padding: 20px; background: #121212; }
+        .playlist-track { padding: 5px 0; }
+        audio { width: 100%; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Minhas Playlists</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Início</a></li>
-                <li><a href="playlists.html">Playlists</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <div class="container">
-        <h2>Playlist 1</h2>
-        <!-- Playlist content here -->
+    <div class="header">
+        <h1>Your Playlist</h1>
     </div>
-
-    <footer id="player-footer">
-        <div id="current-track">
-            <span id="track-title">Selecione uma música</span>
-        </div>
-        <audio id="audio-player" controls>
-            <source id="audio-source" type="audio/mpeg">
-        </audio>
-    </footer>
-
+    <div class="playlist">
+        <h2>Your Playlist</h2>
+        <div id="playlist"></div>
+        <a href="index.html" style="color: #1db954;">Back to Music</a>
+    </div>
+    <audio id="audio-player" controls>
+        <source id="audio-source" src="" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
     <script src="script.js"></script>
 </body>
 </html>
