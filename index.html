@@ -25,10 +25,22 @@
             flex-grow: 1;
             overflow-y: auto;
         }
-        .album {
+        .toggle-view {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .toggle-view button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            background: #1db954;
+            color: #fff;
             cursor: pointer;
         }
-        .album-title {
+        .album, .artist {
+            cursor: pointer;
+        }
+        .section-title {
             font-size: 24px;
             padding: 10px;
             background: #202020;
@@ -46,54 +58,17 @@
         .track:hover {
             color: #1db954;
         }
-        .playlist {
-            padding: 20px;
-            background: #121212;
-            border-top: 2px solid #1db954;
-            position: fixed;
-            bottom: 60px;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        #playlist h2 {
-            margin: 0;
-            padding-bottom: 10px;
-            text-align: center;
-        }
-        audio {
-            width: 100%;
-            position: fixed;
-            bottom: 0;
-            background-color: #121212;
-            padding: 10px;
-            border-top: 2px solid #1db954;
-        }
-        .add-to-playlist {
-            cursor: pointer;
-            color: #1db954;
-            border: none;
-            background: none;
-            padding: 5px 10px;
-        }
-        .add-to-playlist:hover {
-            color: #fff;
-        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Music Player</h1>
+        <div class="toggle-view">
+            <button onclick="changeView('album')">Por Álbum</button>
+            <button onclick="changeView('artist')">Por Artista</button>
+        </div>
     </div>
     <div id="music-list" class="music-list"></div>
-    <div class="playlist" id="playlist-container">
-        <h2>Your Playlist</h2>
-        <div id="playlist"></div>
-    </div>
-    <audio id="audio-player" controls>
-        <source id="audio-source" src="" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
     <script src="script.js"></script>
 </body>
 </html>
