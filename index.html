@@ -3,74 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Biblioteca Musical</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: white;
-            text-align: center;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
-        .category {
-            margin-bottom: 20px;
-        }
-        .category h2 {
-            text-align: left;
-            border-bottom: 2px solid #fff;
-            padding-bottom: 5px;
-        }
-        .track {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background-color: #181818;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-        audio {
-            width: 100%;
-        }
-        button {
-            padding: 5px 10px;
-            background-color: #1db954;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #audio-player {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #181818;
-            padding: 10px;
-            display: none;
-        }
-        #audio-player audio {
-            width: calc(100% - 100px);
-            display: inline-block;
-        }
-        #track-title {
-            color: white;
-            margin-left: 10px;
-        }
-    </style>
+    <title>Minhas Playlists</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Minha Biblioteca Musical</h1>
-    <div class="container" id="music-list"></div>
-
-    <div id="audio-player">
-        <audio id="audio-player-audio" controls>
-            <source id="audio-source" src="" type="audio/mpeg">
-        </audio>
-        <span id="track-title"></span>
+    <header>
+        <h1>Minhas Playlists</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="playlists.html">Playlists</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <h2>Playlist 1</h2>
+        <!-- Playlist content here -->
     </div>
+
+    <footer id="player-footer">
+        <div id="current-track">
+            <span id="track-title">Selecione uma música</span>
+        </div>
+        <audio id="audio-player" controls>
+            <source id="audio-source" type="audio/mpeg">
+        </audio>
+    </footer>
 
     <script src="script.js"></script>
 </body>
