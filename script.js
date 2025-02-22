@@ -89,14 +89,18 @@ function displayMusic(categories) {
     }
 }
 
-// Alternar exibição do artista
+// Função para alternar exibição do artista
 function toggleArtist(artist) {
     const trackList = document.getElementById(`${artist}-tracks`);
-    trackList.style.display = trackList.style.display === "none" ? "block" : "none";
+    const isHidden = trackList.style.display === "none";
+    trackList.style.display = isHidden ? "block" : "none";
 
     // Garantir que, ao abrir a lista de faixas, o scroll esteja ativado corretamente
-    trackList.scrollTop = 0;
+    if (!isHidden) {
+        trackList.scrollTop = 0; // Rola para o topo quando a lista é aberta
+    }
 }
+
 
 // Tocar música
 async function playTrack(title, url, artist) {
