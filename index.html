@@ -9,61 +9,70 @@
             font-family: Arial, sans-serif;
             background-color: #121212;
             color: white;
-            text-align: center;
+            margin: 0;
+            padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: auto;
         }
-        .category {
-            margin-bottom: 20px;
+        .album {
+            background-color: #181818;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
         }
-        .category h2 {
-            text-align: left;
-            border-bottom: 2px solid #fff;
-            padding-bottom: 5px;
+        .album-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .track-list {
+            list-style: none;
+            padding: 0;
         }
         .track {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            background-color: #181818;
-            border-radius: 5px;
-            margin: 5px 0;
+            padding: 8px;
+            border-bottom: 1px solid #333;
         }
-        audio {
-            width: 100%;
-        }
-        .playlist {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #282828;
-            border-radius: 5px;
-        }
-        button {
-            margin-top: 5px;
-            padding: 5px 10px;
-            background-color: #1db954;
-            color: white;
+        .track button {
+            background-color: #1DB954;
             border: none;
-            border-radius: 5px;
+            color: white;
+            padding: 5px 10px;
             cursor: pointer;
+        }
+        .track button:hover {
+            background-color: #17a84a;
+        }
+        #playlist {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #222;
+            border-radius: 10px;
+        }
+        .filter {
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <h1>Minha Biblioteca de Músicas</h1>
-    <label for="genre-filter">Filtrar por Estilo:</label>
-    <select id="genre-filter" onchange="filterByGenre()">
-        <option value="all">Todos</option>
-    </select>
-    <div class="container" id="music-list"></div>
-    
-    <div class="playlist">
-        <h2>Minha Playlist</h2>
-        <div id="playlist-list"></div>
-        <button onclick="clearPlaylist()">Limpar Playlist</button>
+    <div class="container">
+        <h1>Minha Biblioteca de Músicas</h1>
+        <div class="filter">
+            <label for="genre">Filtrar por gênero:</label>
+            <select id="genre" onchange="filterByGenre()">
+                <option value="all">Todos</option>
+            </select>
+        </div>
+        <div id="music-list"></div>
+        <div id="playlist">
+            <h2>Minha Playlist</h2>
+            <ul id="playlist-list"></ul>
+        </div>
     </div>
     
     <script>
@@ -71,98 +80,88 @@
         const repoName = "MuplaOn";
         const musicFolder = "music";
         const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
-        const playlist = [];
+        let genres = new Set();
+        let playlist = [];
 
         async function fetchMusic() {
             try {
                 const response = await fetch(apiUrl);
                 const files = await response.json();
-                
                 const musicList = document.getElementById("music-list");
                 musicList.innerHTML = "";
-                
-                const genreFilter = document.getElementById("genre-filter");
-                const genres = new Set();
-                
-                const categories = {};
-                
+                let albums = {};
+
                 files.forEach(file => {
                     if (file.name.endsWith(".mp3")) {
-                        const [artist, album, genre, title] = file.name.replace('.mp3', '').split(' - ');
+                        const parts = file.name.replace(".mp3", "").split(" - ");
+                        if (parts.length < 3) return;
+                        const [artist, album, title] = parts;
+                        const genre = "Pop"; // Substitua pela detecção de gênero real
                         genres.add(genre);
-                        
-                        if (!categories[genre]) {
-                            categories[genre] = {};
+
+                        if (!albums[album]) {
+                            albums[album] = { artist, genre, tracks: [] };
                         }
-                        if (!categories[genre][artist]) {
-                            categories[genre][artist] = {};
-                        }
-                        if (!categories[genre][artist][album]) {
-                            categories[genre][artist][album] = [];
-                        }
-                        categories[genre][artist][album].push({ title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                        albums[album].tracks.push({ title, fileName: file.name });
                     }
                 });
-                
-                genres.forEach(genre => {
-                    const option = document.createElement("option");
-                    option.value = genre;
-                    option.textContent = genre;
-                    genreFilter.appendChild(option);
-                });
 
-                displayMusic(categories);
+                Object.keys(albums).forEach(album => {
+                    const albumDiv = document.createElement("div");
+                    albumDiv.className = "album";
+                    albumDiv.dataset.genre = albums[album].genre;
+                    albumDiv.innerHTML = `<div class="album-title">${albums[album].artist} - ${album} (${albums[album].genre})</div>`;
+                    
+                    const trackList = document.createElement("ul");
+                    trackList.className = "track-list";
+                    
+                    albums[album].tracks.forEach(track => {
+                        const trackItem = document.createElement("li");
+                        trackItem.className = "track";
+                        trackItem.innerHTML = `
+                            <span>${track.title}</span>
+                            <audio controls>
+                                <source src="https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${track.fileName}" type="audio/mpeg">
+                            </audio>
+                            <button onclick="addToPlaylist('${track.title}', '${track.fileName}')">+</button>
+                        `;
+                        trackList.appendChild(trackItem);
+                    });
+                    albumDiv.appendChild(trackList);
+                    musicList.appendChild(albumDiv);
+                });
+                updateGenreFilter();
             } catch (error) {
                 console.error("Erro ao procurar as músicas:", error);
             }
         }
 
-        function displayMusic(categories, selectedGenre = "all") {
-            const musicList = document.getElementById("music-list");
-            musicList.innerHTML = "";
-
-            for (const genre in categories) {
-                if (selectedGenre !== "all" && genre !== selectedGenre) continue;
-                
-                const genreSection = document.createElement("div");
-                genreSection.className = "category";
-                genreSection.innerHTML = `<h2>${genre}</h2>`;
-                
-                for (const artist in categories[genre]) {
-                    const artistSection = document.createElement("div");
-                    artistSection.innerHTML = `<h3>${artist}</h3>`;
-                    
-                    for (const album in categories[genre][artist]) {
-                        const albumSection = document.createElement("div");
-                        albumSection.innerHTML = `<h4>${album}</h4>`;
-                        
-                        categories[genre][artist][album].forEach(track => {
-                            const trackElement = document.createElement("div");
-                            trackElement.className = "track";
-                            trackElement.innerHTML = `
-                                <span>${track.title}</span>
-                                <audio controls>
-                                    <source src="${track.url}" type="audio/mpeg">
-                                </audio>
-                                <button onclick="addToPlaylist('${track.title}', '${track.url}')">➕</button>
-                            `;
-                            albumSection.appendChild(trackElement);
-                        });
-                        artistSection.appendChild(albumSection);
-                    }
-                    genreSection.appendChild(artistSection);
-                }
-                musicList.appendChild(genreSection);
-            }
+        function updateGenreFilter() {
+            const genreSelect = document.getElementById("genre");
+            genres.forEach(genre => {
+                const option = document.createElement("option");
+                option.value = genre;
+                option.textContent = genre;
+                genreSelect.appendChild(option);
+            });
         }
 
         function filterByGenre() {
-            const selectedGenre = document.getElementById("genre-filter").value;
-            fetchMusic().then(() => displayMusic(categories, selectedGenre));
+            const selectedGenre = document.getElementById("genre").value;
+            document.querySelectorAll(".album").forEach(album => {
+                album.style.display = (selectedGenre === "all" || album.dataset.genre === selectedGenre) ? "block" : "none";
+            });
         }
 
-        function addToPlaylist(title, url) {
-            playlist.push({ title, url });
+        function addToPlaylist(title, fileName) {
+            if (!playlist.some(track => track.fileName === fileName)) {
+                playlist.push({ title, fileName });
+                updatePlaylist();
+            }
+        }
+
+        function removeFromPlaylist(fileName) {
+            playlist = playlist.filter(track => track.fileName !== fileName);
             updatePlaylist();
         }
 
@@ -170,21 +169,14 @@
             const playlistList = document.getElementById("playlist-list");
             playlistList.innerHTML = "";
             playlist.forEach(track => {
-                const trackElement = document.createElement("div");
-                trackElement.className = "track";
-                trackElement.innerHTML = `
+                const trackItem = document.createElement("li");
+                trackItem.className = "track";
+                trackItem.innerHTML = `
                     <span>${track.title}</span>
-                    <audio controls>
-                        <source src="${track.url}" type="audio/mpeg">
-                    </audio>
+                    <button onclick="removeFromPlaylist('${track.fileName}')">-</button>
                 `;
-                playlistList.appendChild(trackElement);
+                playlistList.appendChild(trackItem);
             });
-        }
-
-        function clearPlaylist() {
-            playlist.length = 0;
-            updatePlaylist();
         }
 
         fetchMusic();
