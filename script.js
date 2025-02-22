@@ -54,7 +54,7 @@ async function fetchMusic() {
     }
 }
 
-// Exibir artistas e músicas
+// Função para exibir músicas por artista e adicionar rolagem dinamicamente
 function displayMusic(categories) {
     const musicList = document.getElementById("music-list");
     musicList.innerHTML = "";
@@ -83,6 +83,13 @@ function displayMusic(categories) {
             `;
             trackList.appendChild(trackElement);
         });
+
+        // Verificar se a lista de faixas excede a altura da lista visível
+        if (trackList.scrollHeight > trackList.clientHeight) {
+            trackList.style.overflowY = "auto"; // Ativar rolagem quando necessário
+        } else {
+            trackList.style.overflowY = "hidden"; // Desativar rolagem caso contrário
+        }
 
         artistSection.appendChild(trackList);
         musicList.appendChild(artistSection);
