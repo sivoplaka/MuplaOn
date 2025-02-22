@@ -4,6 +4,7 @@ const musicFolder = "music";
 const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
 let categories = {};
 let playlist = [];
+let currentTrackIndex = 0; // Controla a música atual tocando
 
 // Função para carregar as músicas
 async function fetchMusic() {
@@ -54,11 +55,9 @@ function displayMusic(categories) {
         categories[album].forEach(track => {
             const trackElement = document.createElement("div");
             trackElement.className = "track";
-            trackElement.innerHTML = `
-                <span>${track.title}</span>
-                <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
-                <button onclick="addToPlaylist('${track.title}', '${track.url}')">+ Playlist</button>
-            `;
+            trackElement.innerHTML = `<span>${track.title}</span>`;
+            trackElement.onclick = () => playTrack(track.title, track.url); // Ao clicar no título da música, toca
+
             trackList.appendChild(trackElement);
         });
 
@@ -83,6 +82,30 @@ function playTrack(title, url) {
     audioPlayer.play();
 
     document.title = title;
+
+    // Se a música for da playlist, retorne o índice correto
+    const trackIndex = playlist.findIndex(track => track.url === url);
+    if (trackIndex !== -1) {
+        currentTrackIndex = trackIndex;
+    }
+
+    // Configurar evento para tocar a próxima música
+    audioPlayer.onended = () => {
+        playNextTrack();
+    };
+}
+
+// Função para tocar a próxima música
+function playNextTrack() {
+    const audioPlayer = document.getElementById("audio-player");
+
+    if (currentTrackIndex < playlist.length - 1) {
+        currentTrackIndex++;
+        playTrack(playlist[currentTrackIndex].title, playlist[currentTrackIndex].url);
+    } else {
+        currentTrackIndex = 0; // Começa novamente do início
+        playTrack(playlist[currentTrackIndex].title, playlist[currentTrackIndex].url);
+    }
 }
 
 // Função para adicionar músicas à playlist
