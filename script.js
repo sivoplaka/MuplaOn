@@ -85,17 +85,18 @@ function displayMusic(categories) {
         });
 
         // Verificar se a lista de faixas excede a altura da lista visível
-        if (trackList.scrollHeight > trackList.clientHeight) {
-            trackList.classList.add("scrollable"); // Ativar rolagem quando necessário
-        } else {
-            trackList.classList.remove("scrollable"); // Desativar rolagem caso contrário
-        }
+        setTimeout(() => {
+            if (trackList.scrollHeight > trackList.clientHeight) {
+                trackList.classList.add("scrollable"); // Ativar rolagem quando necessário
+            } else {
+                trackList.classList.remove("scrollable"); // Remover rolagem caso contrário
+            }
+        }, 0); // Deixe o tempo para renderizar e calcular as dimensões
 
         artistSection.appendChild(trackList);
         musicList.appendChild(artistSection);
     }
 }
-
 
 // Função para alternar exibição do artista
 function toggleArtist(artist) {
