@@ -7,6 +7,7 @@ let currentTrack = null;
 let playlist = [];
 let originalTitle = document.title; // Guarda o título original da página
 
+// Função para carregar as músicas
 async function fetchMusic() {
     try {
         const response = await fetch(apiUrl);
@@ -16,9 +17,8 @@ async function fetchMusic() {
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
-                // Modificado para lidar com o formato "Artista - Álbum - Nome da música.mp3"
                 const [artist, album, ...titleParts] = file.name.replace('.mp3', '').split(' - ');
-                const title = titleParts.join(' - '); // Caso o título tenha " - " no meio
+                const title = titleParts.join(' - ');
 
                 if (!categories[album]) {
                     categories[album] = {};
@@ -36,6 +36,7 @@ async function fetchMusic() {
     }
 }
 
+// Função para exibir as músicas e álbuns
 function displayMusic(categories) {
     const musicList = document.getElementById("music-list");
     musicList.innerHTML = "";
@@ -43,23 +44,22 @@ function displayMusic(categories) {
     for (const album in categories) {
         const albumSection = document.createElement("div");
         albumSection.className = "category";
-        
-        // Título do álbum que, ao ser clicado, abre ou fecha as músicas
+
         const albumTitle = document.createElement("h2");
         albumTitle.textContent = album;
         albumTitle.className = "album-title";
-        albumTitle.onclick = () => toggleAlbum(album); // Ação ao clicar no álbum
-        
+        albumTitle.onclick = () => toggleAlbum(album);
+
         albumSection.appendChild(albumTitle);
 
         const artistContainer = document.createElement("div");
         artistContainer.className = "artists-container";
-        artistContainer.style.display = "none"; // Inicialmente invisível
+        artistContainer.style.display = "none";
 
         for (const artist in categories[album]) {
             const artistSection = document.createElement("div");
             artistSection.innerHTML = `<h3>${artist}</h3>`;
-            
+
             categories[album][artist].forEach(track => {
                 const trackElement = document.createElement("div");
                 trackElement.className = "track";
@@ -77,6 +77,7 @@ function displayMusic(categories) {
     }
 }
 
+// Função para alternar a exibição das músicas dentro de um álbum
 function toggleAlbum(album) {
     const artistContainer = document.querySelector(`#${album}-container`);
     const albumTitle = document.querySelector(`h2:contains('${album}')`);
@@ -88,26 +89,29 @@ function toggleAlbum(album) {
     }
 }
 
+// Função para tocar uma música
 function playTrack(title, url) {
     const audioPlayer = document.getElementById("audio-player");
     const audioSource = document.getElementById("audio-source");
     const trackTitle = document.getElementById("track-title");
 
-    trackTitle.textContent = title; // Atualiza o título da música
+    trackTitle.textContent = title; 
     audioSource.src = url;
     audioPlayer.load();
     audioPlayer.play();
-    document.title = title; // Atualiza o título da página com o nome da música
+    document.title = title; 
 
-    currentTrack = { title, url }; // Guarda a música atual
+    currentTrack = { title, url }; 
 }
 
+// Função para adicionar músicas à playlist
 function addToPlaylist(title, url) {
     const track = { title, url };
     playlist.push(track);
     updatePlaylistDisplay();
 }
 
+// Função para atualizar a exibição da playlist
 function updatePlaylistDisplay() {
     const playlistContainer = document.getElementById("playlist");
     playlistContainer.innerHTML = "";
@@ -123,15 +127,16 @@ function updatePlaylistDisplay() {
     });
 }
 
-// Função que verifica se a música está tocando e, caso não esteja, restaura o título da página
+// Restaura o título quando não há música tocando
 function checkIfNoTrackPlaying() {
     if (!currentTrack) {
-        document.title = originalTitle; // Restaura o título original
+        document.title = originalTitle;
     }
 }
 
-// Escuta o evento de "ended" do player para restaurar o título da página quando a música terminar
+// Adiciona evento para restaurar título após música terminar
 const audioPlayer = document.getElementById("audio-player-audio");
 audioPlayer.addEventListener("ended", checkIfNoTrackPlaying);
 
+// Carrega as músicas ao iniciar a página
 fetchMusic();
