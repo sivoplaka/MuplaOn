@@ -92,11 +92,11 @@ function displayMusic(categories) {
 function toggleArtist(artist) {
     const trackList = document.getElementById(`${artist}-tracks`);
     const isHidden = trackList.style.display === "none";
-    trackList.style.display = isHidden ? "block" : "none";
+    trackList.style.display = isHidden ? "block" : "none"; // Exibe ou oculta a lista de faixas
 
     // Garantir que, ao abrir a lista de faixas, o scroll esteja ativado corretamente
     if (!isHidden) {
-        trackList.scrollTop = 0; // Rola para o topo quando a lista é aberta
+        trackList.scrollTop = 0; // Rola para o topo quando a lista de faixas for aberta
     }
 }
 
