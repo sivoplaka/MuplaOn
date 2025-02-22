@@ -88,7 +88,6 @@ function displayMusic(categories) {
     }
 }
 
-
 // Função para alternar exibição do artista
 function toggleArtist(artist) {
     const trackList = document.getElementById(`${artist}-tracks`);
@@ -100,7 +99,6 @@ function toggleArtist(artist) {
         trackList.scrollTop = 0; // Rola para o topo quando a lista é aberta
     }
 }
-
 
 // Tocar música
 async function playTrack(title, url, artist) {
