@@ -4,31 +4,7 @@ body {
     color: white;
     margin: 0;
     padding: 0;
-}
-
-header {
-    background-color: #181818;
-    padding: 10px;
-    text-align: center;
-}
-
-header h1 {
-    margin: 0;
-}
-
-nav ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-nav li {
-    display: inline;
-    margin: 0 15px;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
+    overflow: hidden; /* Impede o scroll global da página */
 }
 
 .container {
@@ -45,15 +21,13 @@ nav a {
     padding-bottom: 5px;
 }
 
-/* Ajuste para organizar os artistas e faixas */
 .artist {
     cursor: pointer;
     margin-bottom: 10px;
 }
 
-/* Ajustando tamanho da fonte para os artistas */
 .artist-title {
-    font-size: 40px; /* Aumentado para melhor visibilidade */
+    font-size: 40px; 
     font-weight: bold;
     padding: 12px;
     background: #202020;
@@ -61,26 +35,13 @@ nav a {
 }
 
 .track-list {
-    max-height: 300px; /* Defina a altura máxima desejada */
-    overflow-y: auto;  /* Ativa a rolagem apenas quando necessário */
+    max-height: 300px; /* Define a altura máxima da lista de faixas */
+    overflow-y: auto;  /* Ativa o scroll somente dentro desta área */
     padding-right: 10px;
+    overflow-x: hidden; /* Impede a rolagem horizontal */
+    margin-bottom: 10px;
 }
 
-
-/* Classe que ativa o scroll apenas quando necessário */
-.track-list.scrollable {
-    overflow-y: auto; /* Ativa a rolagem */
-}
-
-.music-list {
-    margin-top: 20px;
-    flex-grow: 1;
-    overflow-y: scroll; /* Garantir o scroll vertical */
-    padding-bottom: 100px;
-    max-height: auto; /* Garantir uma altura fixa para rolar */
-}
-
-/* Estilização das faixas de áudio */
 .track {
     display: flex;
     justify-content: none;
@@ -93,7 +54,6 @@ nav a {
     margin-bottom: 10px;
 }
 
-/* Playlist fixa na parte inferior */
 .playlist {
     padding: 20px;
     background: #121212;
@@ -117,20 +77,6 @@ nav a {
     text-align: center;
 }
 
-/* Botão de adicionar à playlist */
-.add-to-playlist {
-    cursor: pointer;
-    color: #1db954;
-    border: none;
-    background: none;
-    padding: 5px 10px;
-}
-
-.add-to-playlist:hover {
-    color: #fff;
-}
-
-/* Rodapé com player de áudio */
 footer {
     background-color: #181818;
     position: fixed;
