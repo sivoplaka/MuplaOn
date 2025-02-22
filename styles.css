@@ -43,7 +43,7 @@ body {
 
 /* Configurações para a lista de faixas */
 .track-list {
-    max-height: 300px; /* Limite de altura para o scroll */
+    max-height: auto; /* Limite de altura para o scroll */
     overflow-y: auto;  /* Permite o scroll apenas na lista de faixas */
     padding-right: 10px;
     margin-bottom: 10px;
