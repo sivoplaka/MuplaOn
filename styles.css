@@ -61,11 +61,10 @@ nav a {
 }
 
 .track-list {
-    max-height: 300px;  /* Defina a altura máxima da lista */
-    overflow-y: auto;   /* Permite a rolagem vertical */
-    padding-right: 10px; /* Para não esconder a barra de rolagem */
+    max-height: 300px; /* Ajuste a altura máxima desejada */
+    overflow-y: hidden; /* Inicialmente sem rolagem */
+    padding-right: 10px;
 }
-
 
 .music-list {
     margin-top: 20px;
@@ -79,13 +78,14 @@ nav a {
 /* Estilização das faixas de áudio */
 .track {
     display: flex;
-    justify-content: space-between;
+    justify-content: none;
     align-items: center;
     padding: 10px;
     background-color: #181818;
     border-radius: 5px;
     margin: 5px 0;
     cursor: pointer;
+    margin-bottom: 10px;
 }
 
 /* Playlist fixa na parte inferior */
