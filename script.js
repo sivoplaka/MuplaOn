@@ -8,7 +8,6 @@ let currentTrackIndex = 0;
 let originalTitle = document.title;
 
 // Função para carregar músicas
-// Função para carregar músicas
 async function fetchMusic() {
     try {
         const response = await fetch(apiUrl);
@@ -19,6 +18,8 @@ async function fetchMusic() {
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
                 const fileName = file.name.replace('.mp3', '');
+                console.log("Arquivo encontrado:", fileName); // Log do nome do arquivo
+                
                 const parts = fileName.split(' - ');
 
                 let artist, album, title;
@@ -33,7 +34,12 @@ async function fetchMusic() {
                     artist = parts[0];
                     album = parts[1];
                     title = parts.slice(2).join(' - '); // Caso o título tenha " - "
+                } else {
+                    console.log("Formato não reconhecido:", fileName); // Log caso não encontre o formato esperado
+                    return; // Ignora este arquivo se o formato for inesperado
                 }
+
+                console.log(`Artista: ${artist}, Álbum: ${album}, Título: ${title}`); // Log de depuração
 
                 if (!categories[artist]) {
                     categories[artist] = [];
@@ -47,7 +53,6 @@ async function fetchMusic() {
         console.error("Erro ao buscar músicas:", error);
     }
 }
-
 
 // Exibir artistas e músicas
 function displayMusic(categories) {
