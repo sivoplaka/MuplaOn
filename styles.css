@@ -63,16 +63,17 @@ nav a {
 .track-list {
     display: none;
     margin-left: 20px;
-    max-height: 200px; /* Garantir um limite de altura */
+    max-height: 300px; /* Ajuste para permitir mais espaço */
     overflow-y: auto; /* Habilitar scroll */
+    padding-right: 10px; /* Garantir que o conteúdo não fique colado à borda */
 }
 
-/* Ajuste para a área da lista de músicas */
 .music-list {
     margin-top: 20px;
     flex-grow: 1;
     overflow-y: auto;
     padding-bottom: 100px;
+    max-height: 400px; /* Garantir que tenha uma altura fixa para rolar */
 }
 
 /* Estilização das faixas de áudio */
