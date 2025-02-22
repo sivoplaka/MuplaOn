@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Biblioteca Musical</title>
+    <title>A minha biblioteca musical</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,26 +12,17 @@
             text-align: center;
         }
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: auto;
-        }
-        .album {
-            margin: 20px 0;
-            padding: 10px;
-            background-color: #181818;
-            border-radius: 5px;
         }
         .track {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px;
-            border-bottom: 1px solid #333;
-        }
-        .controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background-color: #181818;
+            border-radius: 5px;
+            margin: 5px 0;
         }
         audio {
             width: 150px;
@@ -42,119 +33,85 @@
             background-color: #222;
             border-radius: 5px;
         }
-        .playlist-track {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #444;
-        }
     </style>
 </head>
 <body>
     <h1>Minha Biblioteca de Músicas</h1>
-    <div>
-        <label for="genre-filter">Filtrar por estilo:</label>
-        <select id="genre-filter" onchange="filterMusic()">
-            <option value="">Todos</option>
-        </select>
-    </div>
     <div class="container" id="music-list"></div>
-    
     <h2>Minha Playlist</h2>
     <div class="playlist" id="playlist"></div>
-
+    
     <script>
         const repoOwner = "sivoplaka";
         const repoName = "MuplaOn";
         const musicFolder = "music";
         const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
-        const playlist = [];
-        let musicData = [];
+        
+        let playlist = [];
         
         async function fetchMusic() {
             try {
                 const response = await fetch(apiUrl);
                 const files = await response.json();
                 
-                musicData = files.filter(file => file.name.endsWith(".mp3"));
-                renderMusic();
+                const musicList = document.getElementById("music-list");
+                musicList.innerHTML = "";
+                
+                files.forEach(file => {
+                    if (file.name.endsWith(".mp3")) {
+                        const track = document.createElement("div");
+                        track.className = "track";
+                        
+                        const audio = document.createElement("audio");
+                        audio.controls = true;
+                        audio.src = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}`;
+                        audio.addEventListener("play", () => {
+                            document.title = file.name.replace(/_/g, ' ').replace('.mp3', '');
+                        });
+                        
+                        const addButton = document.createElement("button");
+                        addButton.innerText = "+ Playlist";
+                        addButton.onclick = () => addToPlaylist(file.name, audio.src);
+                        
+                        track.appendChild(document.createTextNode(file.name.replace(/_/g, ' ').replace('.mp3', '')));
+                        track.appendChild(audio);
+                        track.appendChild(addButton);
+                        
+                        musicList.appendChild(track);
+                    }
+                });
             } catch (error) {
                 console.error("Erro ao procurar as músicas:", error);
             }
         }
-
-        function renderMusic() {
-            const musicList = document.getElementById("music-list");
-            const genreFilter = document.getElementById("genre-filter");
-            musicList.innerHTML = "";
-            
-            let albums = {};
-            musicData.forEach(file => {
-                const [artist, album, song] = file.name.replace('.mp3', '').split(" - ");
-                const genre = "Pop"; // Alterar para um sistema dinâmico depois
-                
-                if (!albums[album]) {
-                    albums[album] = { artist, genre, tracks: [] };
-                }
-                albums[album].tracks.push({ song, url: file.download_url });
-            });
-            
-            Object.keys(albums).forEach(album => {
-                const albumDiv = document.createElement("div");
-                albumDiv.className = "album";
-                albumDiv.innerHTML = `<h3>${albums[album].artist} - ${album}</h3>`;
-                
-                albums[album].tracks.forEach(track => {
-                    const trackDiv = document.createElement("div");
-                    trackDiv.className = "track";
-                    trackDiv.innerHTML = `
-                        <span>${track.song}</span>
-                        <div class="controls">
-                            <audio controls onplay="updateTitle('${track.song}')">
-                                <source src="https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${track.song}.mp3" type="audio/mpeg">
-                            </audio>
-                            <button onclick="addToPlaylist('${track.song}', '${track.url}')">➕</button>
-                        </div>
-                    `;
-                    albumDiv.appendChild(trackDiv);
-                });
-                
-                musicList.appendChild(albumDiv);
-            });
-        }
-
-        function addToPlaylist(song, url) {
-            if (!playlist.some(track => track.song === song)) {
-                playlist.push({ song, url });
+        
+        function addToPlaylist(name, src) {
+            if (!playlist.some(track => track.name === name)) {
+                playlist.push({ name, src });
                 renderPlaylist();
             }
         }
-
-        function removeFromPlaylist(index) {
-            playlist.splice(index, 1);
-            renderPlaylist();
-        }
-
+        
         function renderPlaylist() {
             const playlistDiv = document.getElementById("playlist");
             playlistDiv.innerHTML = "";
             
-            playlist.forEach((track, index) => {
-                const trackDiv = document.createElement("div");
-                trackDiv.className = "playlist-track";
-                trackDiv.innerHTML = `
-                    <span>${track.song}</span>
-                    <button onclick="removeFromPlaylist(${index})">❌</button>
-                `;
-                playlistDiv.appendChild(trackDiv);
+            playlist.forEach(track => {
+                const trackElement = document.createElement("div");
+                trackElement.innerText = track.name.replace(/_/g, ' ').replace('.mp3', '');
+                
+                const removeButton = document.createElement("button");
+                removeButton.innerText = "Remover";
+                removeButton.onclick = () => {
+                    playlist = playlist.filter(t => t.name !== track.name);
+                    renderPlaylist();
+                };
+                
+                trackElement.appendChild(removeButton);
+                playlistDiv.appendChild(trackElement);
             });
         }
-
-        function updateTitle(song) {
-            document.title = song;
-        }
-
+        
         fetchMusic();
     </script>
 </body>
