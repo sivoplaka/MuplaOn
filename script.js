@@ -5,6 +5,7 @@ const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/$
 let categories = {};
 let currentTrack = null;
 let playlist = [];
+let originalTitle = document.title; // Guarda o título original da página
 
 async function fetchMusic() {
     try {
@@ -97,6 +98,8 @@ function playTrack(title, url) {
     audioPlayer.load();
     audioPlayer.play();
     document.title = title; // Atualiza o título da página com o nome da música
+
+    currentTrack = { title, url }; // Guarda a música atual
 }
 
 function addToPlaylist(title, url) {
@@ -119,5 +122,16 @@ function updatePlaylistDisplay() {
         playlistContainer.appendChild(trackElement);
     });
 }
+
+// Função que verifica se a música está tocando e, caso não esteja, restaura o título da página
+function checkIfNoTrackPlaying() {
+    if (!currentTrack) {
+        document.title = originalTitle; // Restaura o título original
+    }
+}
+
+// Escuta o evento de "ended" do player para restaurar o título da página quando a música terminar
+const audioPlayer = document.getElementById("audio-player-audio");
+audioPlayer.addEventListener("ended", checkIfNoTrackPlaying);
 
 fetchMusic();
