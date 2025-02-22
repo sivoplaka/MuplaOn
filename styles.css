@@ -62,10 +62,10 @@ nav a {
 
 .track-list {
     max-height: 300px; /* Defina a altura máxima desejada */
-    overflow-y: hidden; /* Não terá rolagem inicialmente */
+    overflow-y: auto;  /* Ativa a rolagem apenas quando necessário */
     padding-right: 10px;
-    transition: all 0.3s ease; /* Suaviza o efeito ao ativar o scroll */
 }
+
 
 /* Classe que ativa o scroll apenas quando necessário */
 .track-list.scrollable {
