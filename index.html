@@ -47,21 +47,24 @@
             color: #1db954;
         }
         .playlist {
-            margin-top: 40px;
             padding: 20px;
             background: #121212;
-            max-height: 150px;
+            border-top: 2px solid #1db954;
+            position: fixed;
+            bottom: 60px;
+            width: 100%;
+            max-height: 200px;
             overflow-y: auto;
-            display: block;
+        }
+        #playlist h2 {
+            margin: 0;
+            padding-bottom: 10px;
+            text-align: center;
         }
         audio {
             width: 100%;
-            margin-top: 20px;
-        }
-        #audio-player {
             position: fixed;
             bottom: 0;
-            width: 100%;
             background-color: #121212;
             padding: 10px;
             border-top: 2px solid #1db954;
@@ -83,7 +86,7 @@
         <h1>Music Player</h1>
     </div>
     <div id="music-list" class="music-list"></div>
-    <div class="playlist">
+    <div class="playlist" id="playlist-container">
         <h2>Your Playlist</h2>
         <div id="playlist"></div>
     </div>
