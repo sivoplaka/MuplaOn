@@ -10,14 +10,11 @@ async function fetchMusic() {
         const response = await fetch(apiUrl);
         const files = await response.json();
         
-        const genreFilter = document.getElementById("genre-filter");
-        const genres = new Set();
         categories = {};
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
                 const [artist, album, genre, title] = file.name.replace('.mp3', '').split(' - ');
-                genres.add(genre);
 
                 if (!categories[genre]) {
                     categories[genre] = {};
@@ -77,11 +74,11 @@ function playTrack(title, url) {
     const audioSource = document.getElementById("audio-source");
     const trackTitle = document.getElementById("track-title");
 
-    trackTitle.textContent = title;
+    trackTitle.textContent = title; // Corrigindo o título da música
     audioSource.src = url;
     audioPlayer.load();
     audioPlayer.play();
-    document.title = title; // Update page title
+    document.title = title; // Atualiza o título da página com o nome da música
 }
 
 fetchMusic();
