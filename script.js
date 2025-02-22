@@ -72,6 +72,9 @@ function displayMusic(categories) {
 function toggleArtist(artist) {
     const trackList = document.getElementById(`${artist}-tracks`);
     trackList.style.display = trackList.style.display === "none" ? "block" : "none";
+
+    // Garantir que, ao abrir a lista de faixas, o scroll esteja ativado corretamente
+    trackList.scrollTop = 0;
 }
 
 // Tocar música
@@ -99,7 +102,7 @@ async function playTrack(title, url, artist) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,
             artist: artist,
-            album: "MuPla-On",
+            album: album,
             artwork: [{ src: albumArt, sizes: "512x512", type: "image/jpeg" }]
         });
     }
@@ -126,7 +129,6 @@ function toggleArtist(artist) {
     // Garantir que, ao abrir a lista de faixas, o scroll esteja ativado corretamente
     trackList.scrollTop = 0;
 }
-
 
 // Função para obter a capa do álbum embutida no MP3 (se houver)
 async function getAlbumArt(url) {
