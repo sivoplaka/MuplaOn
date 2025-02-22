@@ -54,10 +54,9 @@ async function fetchMusic() {
     }
 }
 
-// Função para exibir músicas por artista e adicionar rolagem dinamicamente
 function displayMusic(categories) {
     const musicList = document.getElementById("music-list");
-    musicList.innerHTML = "";
+    musicList.innerHTML = ""; // Limpar a lista antes de adicionar novas músicas
 
     for (const artist in categories) {
         const artistSection = document.createElement("div");
@@ -71,7 +70,7 @@ function displayMusic(categories) {
         artistSection.appendChild(artistTitle);
 
         const trackList = document.createElement("div");
-        trackList.className = "track-list";
+        trackList.className = "track-list"; // Aqui aplicamos a classe para permitir rolagem
         trackList.id = `${artist}-tracks`;
 
         categories[artist].forEach(track => {
@@ -84,19 +83,11 @@ function displayMusic(categories) {
             trackList.appendChild(trackElement);
         });
 
-        // Verificar se a lista de faixas excede a altura da lista visível
-        setTimeout(() => {
-            if (trackList.scrollHeight > trackList.clientHeight) {
-                trackList.classList.add("scrollable"); // Ativar rolagem quando necessário
-            } else {
-                trackList.classList.remove("scrollable"); // Remover rolagem caso contrário
-            }
-        }, 0); // Deixe o tempo para renderizar e calcular as dimensões
-
         artistSection.appendChild(trackList);
         musicList.appendChild(artistSection);
     }
 }
+
 
 // Função para alternar exibição do artista
 function toggleArtist(artist) {
