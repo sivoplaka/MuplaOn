@@ -2,79 +2,78 @@ const repoOwner = "sivoplaka";
 const repoName = "MuplaOn";
 const musicFolder = "music";
 const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
-let categories = {};
+let artists = {};
 let playlist = [];
 let currentTrackIndex = 0;
+let isPlayingFromPlaylist = false;
 
-// Função para carregar músicas
 async function fetchMusic() {
     try {
         const response = await fetch(apiUrl);
         const files = await response.json();
         
-        categories = {};
+        artists = {};
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
                 const [artist, album, ...titleParts] = file.name.replace('.mp3', '').split(' - ');
                 const title = titleParts.join(' - ');
 
-                if (!categories[album]) {
-                    categories[album] = [];
+                if (!artists[artist]) {
+                    artists[artist] = [];
                 }
-                categories[album].push({ artist, title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                artists[artist].push({ album, title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
             }
         });
 
-        displayMusic(categories);
+        displayMusic(artists);
     } catch (error) {
         console.error("Erro ao buscar músicas:", error);
     }
 }
 
-// Exibir álbuns e músicas
-function displayMusic(categories) {
+function displayMusic(artists) {
     const musicList = document.getElementById("music-list");
     musicList.innerHTML = "";
+    musicList.style.overflowY = "auto";
+    musicList.style.maxHeight = "60vh";
 
-    for (const album in categories) {
-        const albumSection = document.createElement("div");
-        albumSection.className = "album";
+    for (const artist in artists) {
+        const artistSection = document.createElement("div");
+        artistSection.className = "artist";
 
-        const albumTitle = document.createElement("div");
-        albumTitle.className = "album-title";
-        albumTitle.textContent = album;
-        albumTitle.onclick = () => toggleAlbum(album);
+        const artistTitle = document.createElement("div");
+        artistTitle.className = "album-title";
+        artistTitle.textContent = artist;
+        artistTitle.onclick = () => toggleArtist(artist);
 
-        albumSection.appendChild(albumTitle);
+        artistSection.appendChild(artistTitle);
 
         const trackList = document.createElement("div");
         trackList.className = "track-list";
-        trackList.id = `${album}-tracks`;
+        trackList.id = `${artist}-tracks`;
 
-        categories[album].forEach(track => {
+        artists[artist].forEach(track => {
             const trackElement = document.createElement("div");
             trackElement.className = "track";
             trackElement.innerHTML = `
-                <span onclick="playTrack('${track.title}', '${track.url}', '${album}')">${track.title}</span>
-                <button class="add-to-playlist" onclick="addToPlaylist('${track.title}', '${track.url}', '${album}')">+ Add</button>
+                <span onclick="playTrack('${track.title}', '${track.url}', '${artist}')">${track.title} (${track.album})</span>
+                <button class="add-to-playlist" onclick="addToPlaylist('${track.title}', '${track.url}', '${artist}')">+ Add</button>
             `;
             trackList.appendChild(trackElement);
         });
 
-        albumSection.appendChild(trackList);
-        musicList.appendChild(albumSection);
+        artistSection.appendChild(trackList);
+        musicList.appendChild(artistSection);
     }
 }
 
-// Alternar exibição do álbum
-function toggleAlbum(album) {
-    const trackList = document.getElementById(`${album}-tracks`);
+function toggleArtist(artist) {
+    const trackList = document.getElementById(`${artist}-tracks`);
     trackList.style.display = trackList.style.display === "none" ? "block" : "none";
 }
 
-// Tocar música
-function playTrack(title, url, album) {
+function playTrack(title, url, artist) {
     const audioPlayer = document.getElementById("audio-player");
     const audioSource = document.getElementById("audio-source");
 
@@ -83,56 +82,73 @@ function playTrack(title, url, album) {
     audioPlayer.play();
 
     document.title = title;
+    isPlayingFromPlaylist = false;
 
-    // Definir ordem de reprodução correta dentro do álbum
-    const albumTracks = categories[album].map(track => track.url);
-    currentTrackIndex = albumTracks.indexOf(url);
+    const artistTracks = artists[artist].map(track => track.url);
+    currentTrackIndex = artistTracks.indexOf(url);
 
     audioPlayer.onended = () => {
-        playNextTrack(album);
+        playNextTrack(artist);
     };
 }
 
-// Tocar próxima música dentro do mesmo álbum
-function playNextTrack(album) {
-    const albumTracks = categories[album].map(track => track.url);
+function playNextTrack(artist) {
+    const artistTracks = artists[artist].map(track => track.url);
 
-    if (currentTrackIndex < albumTracks.length - 1) {
+    if (currentTrackIndex < artistTracks.length - 1) {
         currentTrackIndex++;
-        const nextTrack = categories[album][currentTrackIndex];
-        playTrack(nextTrack.title, nextTrack.url, album);
+    } else {
+        currentTrackIndex = 0; 
     }
+    
+    const nextTrack = artists[artist][currentTrackIndex];
+    playTrack(nextTrack.title, nextTrack.url, artist);
 }
 
-// Adicionar música à playlist sem tocar imediatamente
-function addToPlaylist(title, url, album) {
+function addToPlaylist(title, url, artist) {
     if (!playlist.some(track => track.url === url)) {
-        playlist.push({ title, url, album });
+        playlist.push({ title, url, artist });
         updatePlaylistDisplay();
     }
 }
 
-// Atualizar exibição da playlist
 function updatePlaylistDisplay() {
     const playlistContainer = document.getElementById("playlist");
     playlistContainer.innerHTML = "";
+    playlistContainer.style.overflowY = "auto";
+    playlistContainer.style.maxHeight = "200px";
 
     playlist.forEach((track, index) => {
         const trackElement = document.createElement("div");
         trackElement.className = "playlist-track";
         trackElement.innerHTML = `
-            <span onclick="playTrack('${track.title}', '${track.url}', '${track.album}')">${track.title}</span>
+            <span onclick="playFromPlaylist(${index})">${track.title} (${track.artist})</span>
             <button onclick="removeFromPlaylist(${index})">❌</button>
         `;
         playlistContainer.appendChild(trackElement);
     });
 }
 
-// Remover música da playlist
+function playFromPlaylist(index) {
+    isPlayingFromPlaylist = true;
+    currentTrackIndex = index;
+    const track = playlist[currentTrackIndex];
+    playTrack(track.title, track.url, track.artist);
+
+    document.getElementById("audio-player").onended = playNextInPlaylist;
+}
+
+function playNextInPlaylist() {
+    if (playlist.length > 0) {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        const track = playlist[currentTrackIndex];
+        playTrack(track.title, track.url, track.artist);
+    }
+}
+
 function removeFromPlaylist(index) {
     playlist.splice(index, 1);
     updatePlaylistDisplay();
 }
 
-// Carregar músicas ao iniciar
 fetchMusic();
