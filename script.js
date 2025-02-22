@@ -83,7 +83,7 @@ function playTrack(title, url) {
     audioPlayer.load();
     audioPlayer.play();
 
-    document.title = title;
+    document.title = title; // Alterar o título da página para o título da música
     isPlaying = true;
 
     // Se a música for da playlist, retorne o índice correto
@@ -119,4 +119,20 @@ function addToPlaylist(title, url) {
 }
 
 // Função para atualizar a exibição da playlist
-function updatePlaylistDisplay(
+function updatePlaylistDisplay() {
+    const playlistContainer = document.getElementById("playlist");
+    playlistContainer.innerHTML = "";
+
+    playlist.forEach(track => {
+        const trackElement = document.createElement("div");
+        trackElement.className = "playlist-track";
+        trackElement.innerHTML = `
+            <span>${track.title}</span>
+            <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
+        `;
+        playlistContainer.appendChild(trackElement);
+    });
+}
+
+// Carrega as músicas ao iniciar a página
+fetchMusic();
