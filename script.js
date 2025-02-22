@@ -127,12 +127,4 @@ function updatePlaylistDisplay() {
         const trackElement = document.createElement("div");
         trackElement.className = "playlist-track";
         trackElement.innerHTML = `
-            <span>${track.title}</span>
-            <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
-        `;
-        playlistContainer.appendChild(trackElement);
-    });
-}
-
-// Carrega as músicas ao iniciar a página
-fetchMusic();
+     
