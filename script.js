@@ -56,8 +56,8 @@ function displayMusic(categories) {
             const trackElement = document.createElement("div");
             trackElement.className = "track";
             trackElement.innerHTML = `
-                <span onclick="playTrack('${track.title}', '${track.url}')">${track.title}</span>
-                <button class="add-to-playlist" onclick="addToPlaylist('${track.title}', '${track.url}')">+ Add</button>
+                <span onclick="playTrack('${track.title}', '${track.url}', '${album}')">${track.title}</span>
+                <button class="add-to-playlist" onclick="addToPlaylist('${track.title}', '${track.url}', '${album}')">+ Add</button>
             `;
             trackList.appendChild(trackElement);
         });
@@ -74,7 +74,7 @@ function toggleAlbum(album) {
 }
 
 // Tocar música
-function playTrack(title, url) {
+function playTrack(title, url, album) {
     const audioPlayer = document.getElementById("audio-player");
     const audioSource = document.getElementById("audio-source");
 
@@ -84,34 +84,30 @@ function playTrack(title, url) {
 
     document.title = title;
 
-    // Se a música está na playlist, definir currentTrackIndex corretamente
-    const trackIndex = playlist.findIndex(track => track.url === url);
-    if (trackIndex !== -1) {
-        currentTrackIndex = trackIndex;
-    }
+    // Definir ordem de reprodução correta dentro do álbum
+    const albumTracks = categories[album].map(track => track.url);
+    currentTrackIndex = albumTracks.indexOf(url);
 
     audioPlayer.onended = () => {
-        playNextTrack();
+        playNextTrack(album);
     };
 }
 
-// Tocar próxima música da playlist
-function playNextTrack() {
-    if (playlist.length === 0) return;
+// Tocar próxima música dentro do mesmo álbum
+function playNextTrack(album) {
+    const albumTracks = categories[album].map(track => track.url);
 
-    if (currentTrackIndex < playlist.length - 1) {
+    if (currentTrackIndex < albumTracks.length - 1) {
         currentTrackIndex++;
-    } else {
-        currentTrackIndex = 0; // Recomeça do início
+        const nextTrack = categories[album][currentTrackIndex];
+        playTrack(nextTrack.title, nextTrack.url, album);
     }
-
-    playTrack(playlist[currentTrackIndex].title, playlist[currentTrackIndex].url);
 }
 
 // Adicionar música à playlist sem tocar imediatamente
-function addToPlaylist(title, url) {
+function addToPlaylist(title, url, album) {
     if (!playlist.some(track => track.url === url)) {
-        playlist.push({ title, url });
+        playlist.push({ title, url, album });
         updatePlaylistDisplay();
     }
 }
@@ -125,8 +121,7 @@ function updatePlaylistDisplay() {
         const trackElement = document.createElement("div");
         trackElement.className = "playlist-track";
         trackElement.innerHTML = `
-            <span>${track.title}</span>
-            <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
+            <span onclick="playTrack('${track.title}', '${track.url}', '${track.album}')">${track.title}</span>
             <button onclick="removeFromPlaylist(${index})">❌</button>
         `;
         playlistContainer.appendChild(trackElement);
