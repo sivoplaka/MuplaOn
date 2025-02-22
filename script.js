@@ -5,6 +5,7 @@ const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/$
 let categories = {};
 let playlist = [];
 let currentTrackIndex = 0; // Controla a música atual tocando
+let isPlaying = false; // Para verificar se a música está tocando
 
 // Função para carregar as músicas
 async function fetchMusic() {
@@ -55,7 +56,8 @@ function displayMusic(categories) {
         categories[album].forEach(track => {
             const trackElement = document.createElement("div");
             trackElement.className = "track";
-            trackElement.innerHTML = `<span>${track.title}</span>`;
+            trackElement.innerHTML = `<span>${track.title}</span> 
+                                      <button class="add-to-playlist" onclick="addToPlaylist('${track.title}', '${track.url}')">+ Add</button>`;
             trackElement.onclick = () => playTrack(track.title, track.url); // Ao clicar no título da música, toca
 
             trackList.appendChild(trackElement);
@@ -82,6 +84,7 @@ function playTrack(title, url) {
     audioPlayer.play();
 
     document.title = title;
+    isPlaying = true;
 
     // Se a música for da playlist, retorne o índice correto
     const trackIndex = playlist.findIndex(track => track.url === url);
@@ -116,20 +119,4 @@ function addToPlaylist(title, url) {
 }
 
 // Função para atualizar a exibição da playlist
-function updatePlaylistDisplay() {
-    const playlistContainer = document.getElementById("playlist");
-    playlistContainer.innerHTML = "";
-
-    playlist.forEach(track => {
-        const trackElement = document.createElement("div");
-        trackElement.className = "playlist-track";
-        trackElement.innerHTML = `
-            <span>${track.title}</span>
-            <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
-        `;
-        playlistContainer.appendChild(trackElement);
-    });
-}
-
-// Carrega as músicas ao iniciar a página
-fetchMusic();
+function updatePlaylistDisplay(
