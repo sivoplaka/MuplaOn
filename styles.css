@@ -41,11 +41,12 @@ body {
     border-radius: 5px;
 }
 
+/* Estilo para a lista de faixas de cada artista */
 .track-list {
-    max-height: 300px; /* Limite de altura para o scroll */
-    overflow-y: auto;  /* Permite o scroll apenas na lista de faixas */
-    padding-right: 10px;
-    margin-bottom: 10px;
+    max-height: 300px;  /* Define a altura máxima para a lista de faixas */
+    overflow-y: scroll; /* Habilita o scroll apenas na lista de faixas */
+    padding-right: 10px; /* Ajuste para garantir o scroll visível */
+    margin-bottom: 10px; /* Espaçamento entre as listas */
 }
 
 
