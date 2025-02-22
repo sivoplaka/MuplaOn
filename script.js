@@ -86,15 +86,16 @@ function displayMusic(categories) {
 
         // Verificar se a lista de faixas excede a altura da lista visível
         if (trackList.scrollHeight > trackList.clientHeight) {
-            trackList.style.overflowY = "auto"; // Ativar rolagem quando necessário
+            trackList.classList.add("scrollable"); // Ativar rolagem quando necessário
         } else {
-            trackList.style.overflowY = "hidden"; // Desativar rolagem caso contrário
+            trackList.classList.remove("scrollable"); // Desativar rolagem caso contrário
         }
 
         artistSection.appendChild(trackList);
         musicList.appendChild(artistSection);
     }
 }
+
 
 // Função para alternar exibição do artista
 function toggleArtist(artist) {
