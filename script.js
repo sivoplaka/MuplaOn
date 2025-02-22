@@ -2,9 +2,10 @@ const repoOwner = "sivoplaka";
 const repoName = "MuplaOn";
 const musicFolder = "music";
 const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
-let artists = {};
+let categories = {};
 let playlist = [];
 let currentTrackIndex = 0;
+let originalTitle = document.title;
 
 // Função para carregar músicas
 async function fetchMusic() {
@@ -12,32 +13,32 @@ async function fetchMusic() {
         const response = await fetch(apiUrl);
         const files = await response.json();
         
-        artists = {};
+        categories = {};
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
                 const [artist, album, ...titleParts] = file.name.replace('.mp3', '').split(' - ');
                 const title = titleParts.join(' - ');
 
-                if (!artists[artist]) {
-                    artists[artist] = [];
+                if (!categories[artist]) {
+                    categories[artist] = [];
                 }
-                artists[artist].push({ title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                categories[artist].push({ artist, title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
             }
         });
 
-        displayMusic(artists);
+        displayMusic(categories);
     } catch (error) {
         console.error("Erro ao buscar músicas:", error);
     }
 }
 
 // Exibir artistas e músicas
-function displayMusic(artists) {
+function displayMusic(categories) {
     const musicList = document.getElementById("music-list");
     musicList.innerHTML = "";
 
-    for (const artist in artists) {
+    for (const artist in categories) {
         const artistSection = document.createElement("div");
         artistSection.className = "artist";
 
@@ -52,7 +53,7 @@ function displayMusic(artists) {
         trackList.className = "track-list";
         trackList.id = `${artist}-tracks`;
 
-        artists[artist].forEach(track => {
+        categories[artist].forEach(track => {
             const trackElement = document.createElement("div");
             trackElement.className = "track";
             trackElement.innerHTML = `
@@ -73,8 +74,8 @@ function toggleArtist(artist) {
     trackList.style.display = trackList.style.display === "none" ? "block" : "none";
 }
 
-// Tocar música e definir próximo da playlist
-function playTrack(title, url, artist) {
+// Tocar música
+async function playTrack(title, url, artist) {
     const audioPlayer = document.getElementById("audio-player");
     const audioSource = document.getElementById("audio-source");
 
@@ -82,24 +83,76 @@ function playTrack(title, url, artist) {
     audioPlayer.load();
     audioPlayer.play();
 
-    document.title = title;
+    // Atualiza o título da página enquanto a música toca
+    document.title = `${artist} - ${title}`;
 
-    // Atualizar o índice da música atual na playlist
-    currentTrackIndex = playlist.findIndex(track => track.url === url);
+    // Obtém a imagem da capa embutida no MP3 (se houver)
+    let albumArt = "default-cover.jpg"; // Imagem padrão caso não haja capa
+    try {
+        albumArt = await getAlbumArt(url) || albumArt;
+    } catch (err) {
+        console.warn("Não foi possível carregar a capa do álbum:", err);
+    }
 
-    audioPlayer.onended = playNextInPlaylist;
+    // Atualiza a notificação de mídia nos navegadores compatíveis
+    if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: title,
+            artist: artist,
+            album: "MuPla-On",
+            artwork: [{ src: albumArt, sizes: "512x512", type: "image/jpeg" }]
+        });
+    }
+
+    // Definir ordem de reprodução correta dentro do artista
+    const artistTracks = categories[artist].map(track => track.url);
+    currentTrackIndex = artistTracks.indexOf(url);
+
+    audioPlayer.onended = () => {
+        playNextTrack(artist);
+    };
+
+    // Voltar ao título original quando a música parar
+    audioPlayer.onpause = () => {
+        document.title = originalTitle;
+    };
 }
 
-// Tocar próxima música na playlist
-function playNextInPlaylist() {
-    if (playlist.length === 0) return;
+// Função para obter a capa do álbum embutida no MP3 (se houver)
+async function getAlbumArt(url) {
+    try {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        const context = new AudioContext();
+        const audioBuffer = await context.decodeAudioData(arrayBuffer);
 
-    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-    const nextTrack = playlist[currentTrackIndex];
-    playTrack(nextTrack.title, nextTrack.url, nextTrack.artist);
+        if (audioBuffer) {
+            const metadata = audioBuffer.metadata || {};
+            if (metadata.picture && metadata.picture.length > 0) {
+                return URL.createObjectURL(new Blob([metadata.picture[0].data], { type: metadata.picture[0].format }));
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao obter a capa do álbum:", error);
+    }
+    return null;
 }
 
-// Adicionar música à playlist
+// Tocar próxima música dentro do mesmo artista
+function playNextTrack(artist) {
+    const artistTracks = categories[artist].map(track => track.url);
+
+    if (currentTrackIndex < artistTracks.length - 1) {
+        currentTrackIndex++;
+    } else {
+        currentTrackIndex = 0; // Volta para a primeira música ao finalizar a última
+    }
+
+    const nextTrack = categories[artist][currentTrackIndex];
+    playTrack(nextTrack.title, nextTrack.url, artist);
+}
+
+// Adicionar música à playlist sem tocar imediatamente
 function addToPlaylist(title, url, artist) {
     if (!playlist.some(track => track.url === url)) {
         playlist.push({ title, url, artist });
@@ -121,9 +174,6 @@ function updatePlaylistDisplay() {
         `;
         playlistContainer.appendChild(trackElement);
     });
-
-    // Garantir que o último item da playlist seja visível
-    playlistContainer.scrollTop = playlistContainer.scrollHeight;
 }
 
 // Remover música da playlist
