@@ -3,8 +3,9 @@ const repoName = "MuplaOn";
 const musicFolder = "music";
 const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${musicFolder}`;
 let categories = {};
-let currentTrack = null;
+let playlist = [];
 
+// Função para carregar as músicas
 async function fetchMusic() {
     try {
         const response = await fetch(apiUrl);
@@ -14,17 +15,13 @@ async function fetchMusic() {
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
-                // Modificado para lidar com o formato "Artista - Álbum - Nome da música.mp3"
                 const [artist, album, ...titleParts] = file.name.replace('.mp3', '').split(' - ');
-                const title = titleParts.join(' - '); // Caso o título tenha " - " no meio
+                const title = titleParts.join(' - ');
 
                 if (!categories[album]) {
-                    categories[album] = {};
+                    categories[album] = [];
                 }
-                if (!categories[album][artist]) {
-                    categories[album][artist] = [];
-                }
-                categories[album][artist].push({ title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                categories[album].push({ artist, title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
             }
         });
 
@@ -34,44 +31,82 @@ async function fetchMusic() {
     }
 }
 
+// Função para exibir as músicas e álbuns
 function displayMusic(categories) {
     const musicList = document.getElementById("music-list");
     musicList.innerHTML = "";
 
     for (const album in categories) {
         const albumSection = document.createElement("div");
-        albumSection.className = "category";
-        albumSection.innerHTML = `<h2>${album}</h2>`;
-        
-        for (const artist in categories[album]) {
-            const artistSection = document.createElement("div");
-            artistSection.innerHTML = `<h3>${artist}</h3>`;
-            
-            categories[album][artist].forEach(track => {
-                const trackElement = document.createElement("div");
-                trackElement.className = "track";
-                trackElement.innerHTML = `
-                    <span>${track.title}</span>
-                    <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
-                `;
-                artistSection.appendChild(trackElement);
-            });
-            albumSection.appendChild(artistSection);
-        }
+        albumSection.className = "album";
+
+        const albumTitle = document.createElement("div");
+        albumTitle.className = "album-title";
+        albumTitle.textContent = album;
+        albumTitle.onclick = () => toggleAlbum(album);
+
+        albumSection.appendChild(albumTitle);
+
+        const trackList = document.createElement("div");
+        trackList.className = "track-list";
+        trackList.id = `${album}-tracks`;
+
+        categories[album].forEach(track => {
+            const trackElement = document.createElement("div");
+            trackElement.className = "track";
+            trackElement.innerHTML = `
+                <span>${track.title}</span>
+                <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
+                <button onclick="addToPlaylist('${track.title}', '${track.url}')">+ Playlist</button>
+            `;
+            trackList.appendChild(trackElement);
+        });
+
+        albumSection.appendChild(trackList);
         musicList.appendChild(albumSection);
     }
 }
 
+// Função para alternar a exibição das músicas dentro de um álbum
+function toggleAlbum(album) {
+    const trackList = document.getElementById(`${album}-tracks`);
+    trackList.style.display = trackList.style.display === "none" ? "block" : "none";
+}
+
+// Função para tocar uma música
 function playTrack(title, url) {
     const audioPlayer = document.getElementById("audio-player");
     const audioSource = document.getElementById("audio-source");
-    const trackTitle = document.getElementById("track-title");
 
-    trackTitle.textContent = title; // Atualiza o título da música
     audioSource.src = url;
     audioPlayer.load();
     audioPlayer.play();
-    document.title = title; // Atualiza o título da página com o nome da música
+
+    document.title = title;
 }
 
+// Função para adicionar músicas à playlist
+function addToPlaylist(title, url) {
+    const track = { title, url };
+    playlist.push(track);
+    updatePlaylistDisplay();
+}
+
+// Função para atualizar a exibição da playlist
+function updatePlaylistDisplay() {
+    const playlistContainer = document.getElementById("playlist");
+    playlistContainer.innerHTML = "";
+
+    playlist.forEach(track => {
+        const trackElement = document.createElement("div");
+        trackElement.className = "playlist-track";
+        trackElement.innerHTML = `
+            <span>${track.title}</span>
+            <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
+        `;
+        playlistContainer.appendChild(trackElement);
+    });
+}
+
+// Carrega as músicas ao iniciar a página
 fetchMusic();
