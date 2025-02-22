@@ -1,18 +1,21 @@
 html, body {
-    height: 100%; /* Garantir que o corpo e o html ocupem toda a altura da tela */
+    height: 100%; /* Garantir que o body ocupe toda a altura da tela */
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Impede o scroll global */
 }
 
 body {
     font-family: Arial, sans-serif;
     background-color: #121212;
     color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .container {
     margin: 20px;
+    flex-grow: 1;
 }
 
 .category {
@@ -38,13 +41,15 @@ body {
     border-radius: 5px;
 }
 
+/* Configurações para a lista de faixas */
 .track-list {
-    max-height: 300px; /* Define a altura máxima da lista de faixas */
-    overflow-y: auto;  /* Apenas o scroll vertical dentro desta área */
+    max-height: 300px; /* Limite de altura para o scroll */
+    overflow-y: auto;  /* Permite o scroll apenas na lista de faixas */
     padding-right: 10px;
     margin-bottom: 10px;
 }
 
+/* Estilização para cada faixa na lista */
 .track {
     display: flex;
     justify-content: none;
