@@ -61,13 +61,11 @@ nav a {
 }
 
 .track-list {
-    display: none;
-    margin-left: 20px;
-    max-height: 300px; /* Altura máxima para permitir rolagem */
-    overflow-y: scroll; /* Garantir o scroll visível */
-    padding-right: 10px; /* Para não deixar o conteúdo colado à borda */
-    width: 100%; /* Garantir que a largura ocupe o espaço disponível */
+    max-height: 300px;  /* Defina a altura máxima da lista */
+    overflow-y: auto;   /* Permite a rolagem vertical */
+    padding-right: 10px; /* Para não esconder a barra de rolagem */
 }
+
 
 .music-list {
     margin-top: 20px;
