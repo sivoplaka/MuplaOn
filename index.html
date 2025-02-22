@@ -22,7 +22,6 @@
             text-align: left;
             border-bottom: 2px solid #fff;
             padding-bottom: 5px;
-            cursor: pointer;
         }
         .track {
             display: flex;
@@ -30,15 +29,6 @@
             align-items: center;
             padding: 10px;
             background-color: #181818;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-        .playlist-track {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background-color: #292929;
             border-radius: 5px;
             margin: 5px 0;
         }
@@ -69,17 +59,11 @@
             color: white;
             margin-left: 10px;
         }
-        #playlist {
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
     <h1>Minha Biblioteca Musical</h1>
     <div class="container" id="music-list"></div>
-    
-    <h2>Playlist</h2>
-    <div id="playlist"></div>
 
     <div id="audio-player">
         <audio id="audio-player-audio" controls>
