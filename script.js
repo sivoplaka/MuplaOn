@@ -14,18 +14,17 @@ async function fetchMusic() {
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
-                const [artist, album, genre, title] = file.name.replace('.mp3', '').split(' - ');
+                // Modificado para lidar com o formato "Artista - Álbum - Nome da música.mp3"
+                const [artist, album, ...titleParts] = file.name.replace('.mp3', '').split(' - ');
+                const title = titleParts.join(' - '); // Caso o título tenha " - " no meio
 
-                if (!categories[genre]) {
-                    categories[genre] = {};
+                if (!categories[album]) {
+                    categories[album] = {};
                 }
-                if (!categories[genre][artist]) {
-                    categories[genre][artist] = {};
+                if (!categories[album][artist]) {
+                    categories[album][artist] = [];
                 }
-                if (!categories[genre][artist][album]) {
-                    categories[genre][artist][album] = [];
-                }
-                categories[genre][artist][album].push({ title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                categories[album][artist].push({ title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
             }
         });
 
@@ -39,33 +38,27 @@ function displayMusic(categories) {
     const musicList = document.getElementById("music-list");
     musicList.innerHTML = "";
 
-    for (const genre in categories) {
-        const genreSection = document.createElement("div");
-        genreSection.className = "category";
-        genreSection.innerHTML = `<h2>${genre}</h2>`;
+    for (const album in categories) {
+        const albumSection = document.createElement("div");
+        albumSection.className = "category";
+        albumSection.innerHTML = `<h2>${album}</h2>`;
         
-        for (const artist in categories[genre]) {
+        for (const artist in categories[album]) {
             const artistSection = document.createElement("div");
             artistSection.innerHTML = `<h3>${artist}</h3>`;
             
-            for (const album in categories[genre][artist]) {
-                const albumSection = document.createElement("div");
-                albumSection.innerHTML = `<h4>${album}</h4>`;
-                
-                categories[genre][artist][album].forEach(track => {
-                    const trackElement = document.createElement("div");
-                    trackElement.className = "track";
-                    trackElement.innerHTML = `
-                        <span>${track.title}</span>
-                        <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
-                    `;
-                    albumSection.appendChild(trackElement);
-                });
-                artistSection.appendChild(albumSection);
-            }
-            genreSection.appendChild(artistSection);
+            categories[album][artist].forEach(track => {
+                const trackElement = document.createElement("div");
+                trackElement.className = "track";
+                trackElement.innerHTML = `
+                    <span>${track.title}</span>
+                    <button onclick="playTrack('${track.title}', '${track.url}')">▶️</button>
+                `;
+                artistSection.appendChild(trackElement);
+            });
+            albumSection.appendChild(artistSection);
         }
-        musicList.appendChild(genreSection);
+        musicList.appendChild(albumSection);
     }
 }
 
@@ -74,7 +67,7 @@ function playTrack(title, url) {
     const audioSource = document.getElementById("audio-source");
     const trackTitle = document.getElementById("track-title");
 
-    trackTitle.textContent = title; // Corrigindo o título da música
+    trackTitle.textContent = title; // Atualiza o título da música
     audioSource.src = url;
     audioPlayer.load();
     audioPlayer.play();
