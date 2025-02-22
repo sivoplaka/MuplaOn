@@ -118,6 +118,16 @@ async function playTrack(title, url, artist) {
     };
 }
 
+// Ajuste para garantir que as faixas de áudio com scroll sejam visíveis
+function toggleArtist(artist) {
+    const trackList = document.getElementById(`${artist}-tracks`);
+    trackList.style.display = trackList.style.display === "none" ? "block" : "none";
+
+    // Garantir que, ao abrir a lista de faixas, o scroll esteja ativado corretamente
+    trackList.scrollTop = 0;
+}
+
+
 // Função para obter a capa do álbum embutida no MP3 (se houver)
 async function getAlbumArt(url) {
     try {
