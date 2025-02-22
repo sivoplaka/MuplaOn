@@ -1,10 +1,14 @@
+html, body {
+    height: 100%; /* Garantir que o corpo e o html ocupem toda a altura da tela */
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Impede o scroll global */
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #121212;
     color: white;
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Impede o scroll global da página */
 }
 
 .container {
@@ -36,9 +40,8 @@ body {
 
 .track-list {
     max-height: 300px; /* Define a altura máxima da lista de faixas */
-    overflow-y: auto;  /* Ativa o scroll somente dentro desta área */
+    overflow-y: auto;  /* Apenas o scroll vertical dentro desta área */
     padding-right: 10px;
-    overflow-x: hidden; /* Impede a rolagem horizontal */
     margin-bottom: 10px;
 }
 
