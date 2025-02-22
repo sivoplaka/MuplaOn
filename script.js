@@ -8,6 +8,7 @@ let currentTrackIndex = 0;
 let originalTitle = document.title;
 
 // Função para carregar músicas
+// Função para carregar músicas
 async function fetchMusic() {
     try {
         const response = await fetch(apiUrl);
@@ -17,13 +18,27 @@ async function fetchMusic() {
 
         files.forEach(file => {
             if (file.name.endsWith(".mp3")) {
-                const [artist, album, ...titleParts] = file.name.replace('.mp3', '').split(' - ');
-                const title = titleParts.join(' - ');
+                const fileName = file.name.replace('.mp3', '');
+                const parts = fileName.split(' - ');
+
+                let artist, album, title;
+
+                if (parts.length === 2) {
+                    // Caso seja no formato "Artista - Titulo"
+                    artist = parts[0];
+                    title = parts[1];
+                    album = ""; // Não há álbum nesse caso
+                } else if (parts.length >= 3) {
+                    // Caso seja no formato "Artista - Album - Titulo"
+                    artist = parts[0];
+                    album = parts[1];
+                    title = parts.slice(2).join(' - '); // Caso o título tenha " - "
+                }
 
                 if (!categories[artist]) {
                     categories[artist] = [];
                 }
-                categories[artist].push({ artist, title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
+                categories[artist].push({ artist, album, title, url: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${musicFolder}/${file.name}` });
             }
         });
 
@@ -32,6 +47,7 @@ async function fetchMusic() {
         console.error("Erro ao buscar músicas:", error);
     }
 }
+
 
 // Exibir artistas e músicas
 function displayMusic(categories) {
